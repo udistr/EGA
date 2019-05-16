@@ -31,7 +31,7 @@ def AR(f,w,y,threshold):
       The confidence level (probability to be outside range)
  Returns
  -------
-  out: gamma up and gamm down which is used to calculate the range.
+  out: gamma up and gamma down which is used to calculate the range.
   """
   p=np.sum(w*f,axis=1)
   P=p[..., np.newaxis]
