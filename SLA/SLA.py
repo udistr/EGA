@@ -7,39 +7,45 @@ def loss_ega(f,y,p):
  return(l)
 
 def exp_grad_weight(f,y,e):
-  '''The weight of the Exponential Gradient Average (EGA) Forecaster
-  #==================================================================================  
-  #y(n,ltlon) is the array of observation for n time steps and ltln grid cells
-  #f(n,N,ltln) is the array of the forecasts by N models.
-  #e is a scalar of the learning rate
-  #The return value is the weight of each expert.
-  #==================================================================================  
-  '''
+  """The weight of the Exponential Gradient Average (EGA) Forecaster
 
+  Parameters
+  ----------
+  f : array_like
+      The ensemble forecast. For N models and n time steps and ltln locations f size is f(n,N,ltln).
+  y : array_like
+      The observations y(n,ltln). 
+  e : scalar
+      learning rate
+ Returns
+ -------
+  out: weights
+       array of the size (n+1,N,ltln). The last time is the weight for the future.
+  """
   dim=f.shape
   lrt=dim[0]
   N=dim[1]
   ltln=int(np.prod(np.array(dim))/lrt/N)
-	
+  
   #************************
   # defining weights array
   #************************
   w=np.zeros(f.shape, dtype='Float64')
 
   #************************
-  #bound for the loss	
+  #bound for the loss 
   #************************
   Y=y[..., np.newaxis]
   M=np.amax(np.abs(loss_ega(f,Y,f)),axis=(0,1))
 
   #************************************
-  #eta and starting weight definitions	
+  #eta and starting weight definitions  
   #************************************
   eta=e
   w_start=np.ones(f.shape[1:], dtype='Float64')/N
 
   #************************************
-  #first time step weight	
+  #first time step weight 
   #************************************
   p = np.ones((lrt+1,ltln), dtype='Float64')
   p[0,:]=np.sum(w_start*f[0,:],axis=0)
@@ -48,7 +54,7 @@ def exp_grad_weight(f,y,e):
   # equation 3 in strobach and bel (2016)
 
   #************************************
-  #Updating the weights	
+  #Updating the weights 
   #************************************
   for t in range(1,lrt):
     p[t,:]=np.sum(w[t-1,:]*f[t,:],axis=0)
@@ -60,22 +66,30 @@ def exp_grad_weight(f,y,e):
     w[t,:]=w[t,:]/np.sum(w[t,:],axis=0)
 
   #************************************
-  #Preparing the output	
+  #Preparing the output 
   #************************************
   w1=np.append(w_start[np.newaxis,...],w,axis=0)
-  return w1, M
+  return w1
 
 
 def EGA(f,y):
-  ''';==================================================================================  
-  ; This is our outer loop of the EGA forcaster. Here we choose the learning
-  ; rate the pruduce the minimum error during the learning period
-  ;================================================================================== 
-  '''
+  """The weight of the Exponential Gradient Average (EGA) Forecaster with optimization for the learning rate.
 
+  Parameters
+  ----------
+  f : array_like
+      The ensemble forecast. For N models and n time steps and ltln locations f size is f(n,N,ltln).
+  y : array_like
+      The observations y(n,ltln). 
+      
+ Returns
+ -------
+  out: weights
+       array of the size (n+1,N,ltln). The last time is the weight for the future.
+  """
   #************************
-	 # determining dimentions
-	 #************************
+  # determining dimentions
+  #************************
 
   dim=f.shape
   lrt=dim[0]
@@ -100,7 +114,7 @@ def EGA(f,y):
   expf1=np.zeros((lrt,ltln), dtype='Float64')
   # weights of the models
   weight1=np.zeros((lrt+1,N,ltln), dtype='Float64')
-	
+  
   # first iteration
   start=0. # at the beginning eta=0 everywhere
   n=69 # we increase eta n times
@@ -116,13 +130,13 @@ def EGA(f,y):
     # n weights for each eta and model
     weight0=np.zeros((lrt+1,N,ltln,n), dtype='Float64')
 
-    for lp in range(0,n):	# predictions for each eta
+    for lp in range(0,n): # predictions for each eta
       eta0[:,lp]=start+lp*deta # adding lp*deta every loop
 
       #*************************************************************
       # Running the algorithm for a given eta
       #*************************************************************
-      temp_weight,_=exp_grad_weight(f1,y1,eta0[:,lp])
+      temp_weight=exp_grad_weight(f1,y1,eta0[:,lp])
 
       #output weight for a given eta
       weight0[0:lrt+1,:,:,lp]=temp_weight
