@@ -16,7 +16,7 @@ def heaviside(x):
   x=np.where(x>0,1,0)
   return(x)
 
-def AR(f,w,y,treshold):
+def AR(f,w,y,threshold):
   """heaviside functions
 
   Parameters
@@ -27,7 +27,7 @@ def AR(f,w,y,treshold):
       The ensemble weights. should be the sane size as f or a constant.
   y : array_like
       The observations y(n). 
-  treshold : scalar
+  threshold : scalar
       The confidence level (probability to be outside range)
  Returns
  -------
@@ -51,8 +51,8 @@ def AR(f,w,y,treshold):
   pru=np.mean(heaviside((P+g*SIGMA)-Y),0)
   prd=np.mean(heaviside(Y-(P-g*SIGMA)),0)
 
-  iu=np.argmax(pru>=(1-treshold/2))
-  id=np.argmax(prd>=(1-treshold/2))
+  iu=np.argmax(pru>=(1-threshold/2))
+  id=np.argmax(prd>=(1-threshold/2))
 
   #cal(0) is the upper limit gu
   #cal(1) is the lower limit gd
