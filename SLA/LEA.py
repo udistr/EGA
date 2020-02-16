@@ -24,7 +24,6 @@ def LEA(f,y,w,ew,eta,leta,M):
   w1   : array of the size (N,eta,ltln). The models' weight (for each eta)
   ew1  : array of the size (N,ltln). Eta's weight
   """
-  
   # calculate total model weight
   mw=np.sum(ew[:,None]*w,0) 
   # calculate forecast
@@ -38,7 +37,10 @@ def LEA(f,y,w,ew,eta,leta,M):
   # normalization
   ew1=ew1/(np.sum(ew1,0))
   # update model weight for each eta
-  w1=w*np.exp(-eta[:,None,...]*loss[None,:,...])
+  print(w.shape)
+  print(eta[:,None,None,...].shape)
+  print(loss[None,:,...].shape)
+  w1=w*np.exp(-eta[:,None,None,...]*loss[None,:,...])
   # scaling for model weight (sum of weights =1)
   N=(np.sum(w1,1))
   # scale model weight
