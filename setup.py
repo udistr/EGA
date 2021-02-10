@@ -8,4 +8,6 @@ setup(name='SLA',
       author_email='udistr@gmail.com',
       license='MIT',
       packages=['SLA'],
-      zip_safe=False)
+      zip_safe=False,
+      test_suite='nose.collector',
+      tests_require=['nose'],)
